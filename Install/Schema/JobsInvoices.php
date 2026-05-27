@@ -1,47 +1,24 @@
 <?php
 
-namespace Apps\Tms\Packages\Billing\Invoices\Install\Schema;
+namespace Apps\Tms\Packages\Jobs\Invoices\Install\Schema;
 
 use Phalcon\Db\Column;
 use Phalcon\Db\Index;
 
-class BillingInvoices
+class JobsInvoices
 {
     public function columns()
     {
         return
         [
            'columns' => [
-                new Column(
+                new Column(//Id should match LR and Trip IDs.
                     'id',
                     [
                         'type'          => Column::TYPE_INTEGER,
                         'notNull'       => true,
                         'autoIncrement' => true,
                         'primary'       => true,
-                    ]
-                ),
-                new Column(//Self Company ID
-                    'organisation_id',
-                    [
-                        'type'          => Column::TYPE_INTEGER,
-                        'notNull'       => true,
-                    ]
-                ),
-                new Column(
-                    'date',
-                    [
-                        'type'          => Column::TYPE_VARCHAR,
-                        'size'          => 50,
-                        'notNull'       => true,
-                    ]
-                ),
-                new Column(
-                    'due_date',
-                    [
-                        'type'          => Column::TYPE_VARCHAR,
-                        'size'          => 50,
-                        'notNull'       => true,
                     ]
                 ),
                 new Column(
@@ -51,7 +28,8 @@ class BillingInvoices
                         'notNull'       => true,
                     ]
                 ),
-                new Column(//Needed with invoice no : 1/26-27 is the whole invoice number
+                //Needed with invoice no : 1/26-27 is the whole invoice number
+                new Column(
                     'financial_year',
                     [
                         'type'          => Column::TYPE_VARCHAR,
@@ -59,22 +37,16 @@ class BillingInvoices
                         'notNull'       => true,
                     ]
                 ),
-                new Column(//Either can be Customer or Vendor ID
-                    'company_id',
+                new Column(
+                    'invoice_date',
                     [
-                        'type'          => Column::TYPE_INTEGER,
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 50,
                         'notNull'       => true,
                     ]
                 ),
                 new Column(
-                    'lr_no',
-                    [
-                        'type'          => Column::TYPE_INTEGER,
-                        'notNull'       => true,
-                    ]
-                ),
-                new Column(
-                    'lr_date',
+                    'due_date',
                     [
                         'type'          => Column::TYPE_VARCHAR,
                         'size'          => 50,
@@ -98,10 +70,34 @@ class BillingInvoices
                     ]
                 ),
                 new Column(
-                    'vehicle_id',
+                    'signed_id',
                     [
-                        'type'          => Column::TYPE_SMALLINTEGER,
-                        'notNull'       => true,
+                        'type'          => Column::TYPE_INTEGER,
+                        'notNull'       => false,
+                    ]
+                ),
+                new Column(
+                    'signed_at',
+                    [
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 1024,
+                        'notNull'       => false,
+                    ]
+                ),
+                new Column(
+                    'invoice_dev_notes',
+                    [
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 2048,
+                        'notNull'       => false,
+                    ]
+                ),
+                new Column(
+                    'invoice_notes',
+                    [
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 2048,
+                        'notNull'       => false,
                     ]
                 ),
             ],
@@ -109,7 +105,8 @@ class BillingInvoices
                 new Index(
                     'column_UNIQUE',
                     [
-                        'invoice_no'
+                        'financial_year',
+                        'invoice_no',
                     ],
                     'UNIQUE'
                 )
@@ -127,10 +124,8 @@ class BillingInvoices
             new Index(
                 'column_INDEX',
                 [
-                    'invoice_no',
                     'financial_year',
-                    'organisation_id',
-                    'company_id'
+                    'invoice_no'
                 ],
                 'INDEX'
             )

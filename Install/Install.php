@@ -1,9 +1,9 @@
 <?php
 
-namespace Apps\Tms\Packages\Billing\Invoices\Install;
+namespace Apps\Tms\Packages\Jobs\Invoices\Install;
 
-use Apps\Tms\Packages\Billing\Invoices\Install\Schema\BillingInvoices;
-use Apps\Tms\Packages\Billing\Invoices\Model\AppsTmsBillingInvoices;
+use Apps\Tms\Packages\Jobs\Invoices\Install\Schema\JobsInvoices;
+use Apps\Tms\Packages\Jobs\Invoices\Model\AppsTmsJobsInvoices;
 use System\Base\BasePackage;
 use System\Base\Providers\ModulesServiceProvider\DbInstaller;
 
@@ -17,13 +17,9 @@ class Install extends BasePackage
     {
         $this->databases =
             [
-                'apps_tms_billing_invoices'  => [
-                    'schema'        => new BillingInvoices,
-                    'model'         => new AppsTmsBillingInvoices,
-                    'configParams'  =>
-                        [
-                            'min_index_chars' => 6
-                        ]
+                'apps_tms_jobs_invoices'  => [
+                    'schema'        => new JobsInvoices,
+                    'model'         => new AppsTmsJobsInvoices
                 ],
             ];
 
