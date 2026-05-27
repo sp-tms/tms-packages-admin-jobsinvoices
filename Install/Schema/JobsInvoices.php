@@ -70,9 +70,18 @@ class JobsInvoices
                     ]
                 ),
                 new Column(
-                    'signed_id',
+                    'invoice_document',
                     [
-                        'type'          => Column::TYPE_INTEGER,
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 100,
+                        'notNull'       => false,
+                    ]
+                ),
+                new Column(
+                    'signed_by',
+                    [
+                        'type'          => Column::TYPE_VARCHAR,
+                        'size'          => 100,
                         'notNull'       => false,
                     ]
                 ),
@@ -80,12 +89,12 @@ class JobsInvoices
                     'signed_at',
                     [
                         'type'          => Column::TYPE_VARCHAR,
-                        'size'          => 1024,
+                        'size'          => 100,
                         'notNull'       => false,
                     ]
                 ),
                 new Column(
-                    'invoice_dev_notes',
+                    'invoice_internal_notes',
                     [
                         'type'          => Column::TYPE_VARCHAR,
                         'size'          => 2048,

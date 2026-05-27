@@ -28,7 +28,11 @@
 		{
 			"composer" : 
 			{
-				"require" : []
+				"require" : 
+				{
+					"sop/asn1" : "^4.1",
+					"sop/x509" : "^0.7.1"
+				}
 			},
 			"config" : 
 			{

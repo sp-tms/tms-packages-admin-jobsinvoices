@@ -140,4 +140,72 @@ class JobsInvoices extends BasePackage
 
         return false;
     }
+
+    public function extractDigitalSignature($uuid)
+    {
+        try {
+            $file = $this->basepackages->storages->getFileInfo($uuid);
+
+            if (!$file || ($file && $file['type'] !== 'application/pdf')) {
+                throw new \Exception('Incorrect file. Signature cannot be extracted.');
+            }
+
+            $storage = $this->basepackages->storages->getById($file['storages_id']);
+
+            if (!$storage) {
+                throw new \Exception('Cannot access local storage, contact administrator.');
+            }
+
+            $location = base_path($storage['permission'] . '/' . $storage['id'] . '/data/' . $file['uuid_location'] . $file['uuid']);
+
+            $fileContent = file_get_contents($location);
+
+            //Get Modified Date
+            $regexp = '#<xmp:MetadataDate.*xmp:MetadataDate>#s';
+            preg_match_all($regexp, $fileContent, $signedAtArr);
+
+            $signedAt = '';
+            if (isset($signedAtArr[0][0])) {
+                $signedAtArr[0][0] = str_replace('<xmp:MetadataDate>', '', $signedAtArr[0][0]);
+                $signedAt = str_replace('</xmp:MetadataDate>', '', $signedAtArr[0][0]);
+            }
+
+            if ($signedAt === '') {
+                throw new \Exception('Not able to retrieve Signature information/Document not signed.');
+            }
+
+            // subexpressions are used to extract b and c
+            $regexp = '#ByteRange\[\s*(\d+) (\d+) (\d+)#';
+            $certArr = [];
+            preg_match_all($regexp, $fileContent, $certArr);
+            // $certArr[2][0] and $certArr[3][0] are b and c
+            if (isset($certArr[2]) && isset($certArr[3]) && isset($certArr[2][0]) && isset($certArr[3][0])) {
+                $start = $certArr[2][0];
+                $end = $certArr[3][0];
+
+                if ($stream = fopen($location, 'rb')) {
+                    // because we need to exclude < and > from start and end
+                    $signature = stream_get_contents($stream, $end - $start - 2, $start + 1);
+
+                    fclose($stream);
+                }
+            }
+
+            $seq = \Sop\ASN1\Type\Constructed\Sequence::fromDER(hex2bin($signature));
+            $signed_data = $seq->getTagged(0)->asExplicit()->asSequence();
+            $ecac = $signed_data->getTagged(0)->asImplicit(\Sop\ASN1\Element::TYPE_SET)->asSet();
+            $ecoc = $ecac->at($ecac->count() - 1);
+            $cert = \Sop\X509\Certificate\Certificate::fromASN1($ecoc->asSequence());
+
+            $signedBy = str_replace('cn=', '', $cert->tbsCertificate()->subject()->all()[0]->toString());
+
+            if ($signedBy && $signedAt) {
+                $this->addResponse('Extracted successfully!', 0, ['fileName' => $file['org_file_name'], 'signedBy' => $signedBy, 'signedAt' => $signedAt]);
+            }
+        } catch (\throwable $e) {
+            $this->addResponse($e->getMessage(), 1);
+
+            return false;
+        }
+    }
 }
