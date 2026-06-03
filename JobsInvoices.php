@@ -3,6 +3,7 @@
 namespace Apps\Tms\Packages\Jobs\Invoices;
 
 use Apps\Tms\Packages\Jobs\Invoices\Model\AppsTmsJobsInvoices;
+use Apps\Tms\Packages\Jobs\Invoices\Settings;
 use System\Base\BasePackage;
 
 class JobsInvoices extends BasePackage
@@ -10,6 +11,8 @@ class JobsInvoices extends BasePackage
     protected $modelToUse = AppsTmsJobsInvoices::class;
 
     protected $packageName = 'invoices';
+
+    protected $settings = Settings::class;
 
     public $invoices;
 
@@ -93,53 +96,53 @@ class JobsInvoices extends BasePackage
         $this->addResponse('Invoice # ' . $data['invoice_no'] . ' is valid');
     }
 
-    public function signInvoice($data)
-    {
-        if ($this->config->databasetype === 'db') {
-            $params =
-                [
-                    'conditions'    => 'id = :id: AND financial_year = :financialYear: AND invoice_no = :invoiceNo:',
-                    'bind'          =>
-                        [
-                            'id'                    => (int) $data['lr_no'],
-                            'financialYear'         => $data['financial_year'],
-                            'invoiceNo'             => (int) $data['invoice_no']
-                        ]
-                ];
-        } else {
-            $params = ['conditions' =>
-                [
-                    ['id', '=', (int) $data['lr_no']],
-                    ['financial_year', '=', $data['financial_year']],
-                    ['invoice_no', '=', (int) $data['invoice_no']]
-                ]
-            ];
-        }
+    // public function signInvoice($data)
+    // {
+    //     if ($this->config->databasetype === 'db') {
+    //         $params =
+    //             [
+    //                 'conditions'    => 'id = :id: AND financial_year = :financialYear: AND invoice_no = :invoiceNo:',
+    //                 'bind'          =>
+    //                     [
+    //                         'id'                    => (int) $data['lr_no'],
+    //                         'financialYear'         => $data['financial_year'],
+    //                         'invoiceNo'             => (int) $data['invoice_no']
+    //                     ]
+    //             ];
+    //     } else {
+    //         $params = ['conditions' =>
+    //             [
+    //                 ['id', '=', (int) $data['lr_no']],
+    //                 ['financial_year', '=', $data['financial_year']],
+    //                 ['invoice_no', '=', (int) $data['invoice_no']]
+    //             ]
+    //         ];
+    //     }
 
-        $invoices = $this->getByParams($params);
+    //     $invoices = $this->getByParams($params);
 
-        if ($invoices && count($invoices) === 1) {
-            $invoice = $invoices[0];
+    //     if ($invoices && count($invoices) === 1) {
+    //         $invoice = $invoices[0];
 
-            if ($this->access->auth->check()) {
-                $profile = $this->basepackages->profiles->getProfile($this->access->auth->account()['id']);
+    //         if ($this->access->auth->check()) {
+    //             $profile = $this->basepackages->profiles->getProfile($this->access->auth->account()['id']);
 
-                $invoice['signed_id'] = $this->access->auth->account()['id'];
-                $invoice['signed_by'] = $profile['contact']['full_name'];
-                $invoice['signed_at'] = (\Carbon\Carbon::now())->format('d-m-Y H:i:s');
+    //             $invoice['signed_document'] = $this->access->auth->account()['id'];
+    //             $invoice['signed_by'] = $profile['contact']['full_name'];
+    //             $invoice['signed_at'] = (\Carbon\Carbon::now())->format('d-m-Y H:i:s');
 
-                $this->update($invoice);
+    //             $this->update($invoice);
 
-                $this->addResponse('Invoice Signed', 0, ['invoice' => $invoice]);
+    //             $this->addResponse('Invoice Signed', 0, ['invoice' => $invoice]);
 
-                return true;
-            }
-        }
+    //             return true;
+    //         }
+    //     }
 
-        $this->addResponse('Unable to sign invoice!', 1);
+    //     $this->addResponse('Unable to sign invoice!', 1);
 
-        return false;
-    }
+    //     return false;
+    // }
 
     public function extractDigitalSignature($uuid)
     {

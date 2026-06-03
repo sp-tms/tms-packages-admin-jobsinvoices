@@ -20,13 +20,15 @@ class AppsTmsJobsInvoices extends BaseModel
 
     public $material_invoice_no;
 
-    public $invoice_document;
+    public $signed_uuid;
+
+    public $signed_document;
 
     public $signed_by;
 
     public $signed_at;
 
-    public $invoice_internal_notes;
+    public $invoice_dev_notes;
 
     public $invoice_notes;
 }
