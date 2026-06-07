@@ -25,7 +25,7 @@ class JobsInvoices
                     'invoice_no',
                     [
                         'type'          => Column::TYPE_INTEGER,
-                        'notNull'       => true,
+                        'notNull'       => false,
                     ]
                 ),
                 //Needed with invoice no : 1/26-27 is the whole invoice number
