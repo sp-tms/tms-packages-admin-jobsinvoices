@@ -34,7 +34,7 @@ class JobsInvoices
                     [
                         'type'          => Column::TYPE_VARCHAR,
                         'size'          => 10,
-                        'notNull'       => true,
+                        'notNull'       => false,
                     ]
                 ),
                 new Column(
@@ -42,7 +42,7 @@ class JobsInvoices
                     [
                         'type'          => Column::TYPE_VARCHAR,
                         'size'          => 50,
-                        'notNull'       => true,
+                        'notNull'       => false,
                     ]
                 ),
                 new Column(
@@ -50,7 +50,7 @@ class JobsInvoices
                     [
                         'type'          => Column::TYPE_VARCHAR,
                         'size'          => 50,
-                        'notNull'       => true,
+                        'notNull'       => false,
                     ]
                 ),
                 new Column(
@@ -122,6 +122,7 @@ class JobsInvoices
                 new Index(
                     'column_UNIQUE',
                     [
+                        'id',
                         'financial_year',
                         'invoice_no',
                     ],

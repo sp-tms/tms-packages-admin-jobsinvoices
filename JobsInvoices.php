@@ -61,7 +61,11 @@ class JobsInvoices extends BasePackage
             }
         }
 
-        return 1;
+        $nextInvoiceNumber = 1;
+
+        $this->addResponse('Generated next invoice #', 0, ['nextInvoiceNumber' => $nextInvoiceNumber]);
+
+        return $nextInvoiceNumber;
     }
 
     public function checkInvoice($data)
@@ -87,62 +91,24 @@ class JobsInvoices extends BasePackage
 
         $invoices = $this->getByParams($params);
 
-        if ($invoices && count($invoices) > 0) {
+        if ($invoices && count($invoices) === 1) {
             $this->addResponse('Invoice # ' . $data['invoice_no'] . ' already exists!', 1);
 
             return false;
         }
 
+        $nextInvoiceNumber = $this->getNextInvoiceNumber($data['financial_year']);
+
+        if ($nextInvoiceNumber) {
+            if ((int) $data['invoice_no'] > $nextInvoiceNumber) {
+                $this->addResponse('Invoice ' . $data['invoice_no'] . ' is valid', 2, ['nextInvoiceNumber' => $nextInvoiceNumber]);
+
+                return true;
+            }
+        }
+
         $this->addResponse('Invoice # ' . $data['invoice_no'] . ' is valid');
     }
-
-    // public function signInvoice($data)
-    // {
-    //     if ($this->config->databasetype === 'db') {
-    //         $params =
-    //             [
-    //                 'conditions'    => 'id = :id: AND financial_year = :financialYear: AND invoice_no = :invoiceNo:',
-    //                 'bind'          =>
-    //                     [
-    //                         'id'                    => (int) $data['lr_no'],
-    //                         'financialYear'         => $data['financial_year'],
-    //                         'invoiceNo'             => (int) $data['invoice_no']
-    //                     ]
-    //             ];
-    //     } else {
-    //         $params = ['conditions' =>
-    //             [
-    //                 ['id', '=', (int) $data['lr_no']],
-    //                 ['financial_year', '=', $data['financial_year']],
-    //                 ['invoice_no', '=', (int) $data['invoice_no']]
-    //             ]
-    //         ];
-    //     }
-
-    //     $invoices = $this->getByParams($params);
-
-    //     if ($invoices && count($invoices) === 1) {
-    //         $invoice = $invoices[0];
-
-    //         if ($this->access->auth->check()) {
-    //             $profile = $this->basepackages->profiles->getProfile($this->access->auth->account()['id']);
-
-    //             $invoice['signed_document'] = $this->access->auth->account()['id'];
-    //             $invoice['signed_by'] = $profile['contact']['full_name'];
-    //             $invoice['signed_at'] = (\Carbon\Carbon::now())->format('d-m-Y H:i:s');
-
-    //             $this->update($invoice);
-
-    //             $this->addResponse('Invoice Signed', 0, ['invoice' => $invoice]);
-
-    //             return true;
-    //         }
-    //     }
-
-    //     $this->addResponse('Unable to sign invoice!', 1);
-
-    //     return false;
-    // }
 
     public function extractDigitalSignature($uuid)
     {
